@@ -1,0 +1,123 @@
+#!/bin/bash
+
+INSTALLDIR="$1"
+unset LD_LIBRARY_PATH # Use system libraries, this was set Tauri's AppImage builder
+export WINEDEBUG=err+all,fixme-all
+
+mkdir "$INSTALLDIR/temp"
+if [ $? -ne 0 ] ; then
+    echo "temp dir already exists"
+    exit 1
+fi
+
+abort_and_cleanup () {
+    rm -rf "$INSTALLDIR/temp"
+    echo "$1"
+    exit 1
+}
+
+if ! [ -f "$INSTALLDIR/disc1/fe.viv" ] ; then
+    abort_and_cleanup "Disc 1 is invalid. Missing \"fe.viv\", exiting."
+fi
+
+if ! [ -f "$INSTALLDIR/disc2/SAR.exe" ] ; then
+    abort_and_cleanup "Disc 2 is invalid. Missing \"SAR.exe\", exiting."
+fi
+
+echo "Downloading Wine-GE"
+curl -o "$INSTALLDIR/temp/winege.tar.xz" -L https://github.com/GloriousEggroll/wine-ge-custom/releases/download/GE-Proton8-20/wine-lutris-GE-Proton8-20-x86_64.tar.xz
+if [ $? -ne 0 ] ; then
+    abort_and_cleanup "Failed to download Wine-GE"
+fi
+echo "Extracting Wine-GE"
+tar -xf "$INSTALLDIR/temp/winege.tar.xz" -C "$INSTALLDIR"
+
+echo "Downloading d8vk"
+curl -o "$INSTALLDIR/temp/d8vk.tar.gz" -L https://github.com/AlpyneDreams/d8vk/releases/download/d8vk-v1.0/d8vk-v1.0.tar.gz
+if [ $? -ne 0 ] ; then
+    abort_and_cleanup "Failed to download d8vk"
+fi
+mkdir "$INSTALLDIR/d8vk"
+echo "Extracting d8vk"
+tar -xf "$INSTALLDIR/temp/d8vk.tar.gz" -C "$INSTALLDIR/d8vk"
+
+WINEDIR="$INSTALLDIR/lutris-GE-Proton8-20-x86_64/bin"
+
+# Add registry entry to treat drives as CD-ROMS(tricks the Installer to think that the CDs are inserted)
+# Also add dll overrides for d8vk and Xidi
+CDROM_REGEDIT="\
+REGEDIT4\n\
+\n\
+[HKEY_LOCAL_MACHINE\\Software\\Wine\\Drives]\n\
+\"g:\"=\"cdrom\"\n\
+\"h:\"=\"cdrom\"\n\
+\n\
+[HKEY_CURRENT_USER\\Software\\Wine\\DllOverrides]\n\
+\"d3d8\"=\"native,builtin\"\n\
+\"dinput\"=\"native,builtin\""
+echo -e "$CDROM_REGEDIT" > "$INSTALLDIR/temp/cdrom.reg"
+
+echo "Initializing Wine prefix"
+
+# Hacky way of fixing issues with SteamOS and its locked down package system :(
+PRETTY_NAME=$(grep "PRETTY_NAME" /etc/os-release | cut -d'=' -f2 | tr -d '"')
+if [[ $PRETTY_NAME == *"SteamOS" ]]; then
+    echo "Steam OS detected, applying workarounds"
+    export LD_LIBRARY_PATH="$("$HOME/.steam/root/ubuntu12_32/steam-runtime/run.sh" --print-steam-runtime-library-paths)"
+    echo "Steam OS workarounds applied"
+fi
+
+# NHL 04 does not work on a 64bit prefix because ie6 breaks
+WINEPREFIX="$INSTALLDIR/prefix" WINEARCH=win32 "$WINEDIR/wineboot" -i
+echo "Wineboot"
+
+ln -s "$INSTALLDIR/disc1" "$INSTALLDIR/prefix/dosdevices/g:"
+if [ $? -ne 0 ] ; then
+    abort_and_cleanup "Failed to create disc1 symlink"
+fi
+ln -s "$INSTALLDIR/disc2" "$INSTALLDIR/prefix/dosdevices/h:"
+if [ $? -ne 0 ] ; then
+    abort_and_cleanup "Failed to create disc2 symlink."
+fi
+
+WINEPREFIX="$INSTALLDIR/prefix" "$WINEDIR/wine" regedit "$INSTALLDIR/temp/cdrom.reg"
+if [ $? -ne 0 ] ; then
+    abort_and_cleanup "Failed to update registry, exiting."
+fi
+
+WINEPREFIX="$INSTALLDIR/prefix" "$WINEDIR/wineserver" -k # Apply the drive changes
+WINEPREFIX="$INSTALLDIR/prefix" "$WINEDIR/wineboot"
+echo "Applied registry"
+
+# Remove the symlinks
+WINE_USER=$(whoami)
+rm "$INSTALLDIR/prefix/drive_c/users/$WINE_USER/Desktop"
+rm "$INSTALLDIR/prefix/drive_c/users/$WINE_USER/Documents"
+rm "$INSTALLDIR/prefix/drive_c/users/$WINE_USER/Downloads"
+rm "$INSTALLDIR/prefix/drive_c/users/$WINE_USER/Music"
+rm "$INSTALLDIR/prefix/drive_c/users/$WINE_USER/Pictures"
+rm "$INSTALLDIR/prefix/drive_c/users/$WINE_USER/Videos"
+
+# Recreate the folders
+mkdir "$INSTALLDIR/prefix/drive_c/users/$WINE_USER/Desktop"
+mkdir "$INSTALLDIR/prefix/drive_c/users/$WINE_USER/Documents"
+if [ $? -ne 0 ] ; then
+    abort_and_cleanup "Failed to create Wine doscuments dir"
+fi
+mkdir "$INSTALLDIR/prefix/drive_c/users/$WINE_USER/Downloads"
+mkdir "$INSTALLDIR/prefix/drive_c/users/$WINE_USER/Music"
+mkdir "$INSTALLDIR/prefix/drive_c/users/$WINE_USER/Pictures"
+mkdir "$INSTALLDIR/prefix/drive_c/users/$WINE_USER/Videos"
+
+mkdir "$INSTALLDIR/prefix/drive_c/users/$WINE_USER/Documents/NHL 2004"
+if [ $? -ne 0 ] ; then
+    abort_and_cleanup "Failed to create NHL 2004 Documents dir"
+fi
+mkdir "$INSTALLDIR/prefix/drive_c/users/$WINE_USER/Documents/NHL 2004/db"
+if [ $? -ne 0 ] ; then
+    abort_and_cleanup "Failed to create NHL 2004 Documents db dir"
+fi
+
+cd "$INSTALLDIR/disc1"
+echo "Starting installer"
+WINEPREFIX="$INSTALLDIR/prefix" WINEDLLOVERRIDES="winemenubuilder.exe=d" "$WINEDIR/wine" AutoRun.exe

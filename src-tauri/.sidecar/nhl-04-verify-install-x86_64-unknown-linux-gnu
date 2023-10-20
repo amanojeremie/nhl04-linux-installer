@@ -1,0 +1,7 @@
+#!/bin/bash
+
+INSTALLDIR="$1"
+
+if ! [ -f "$INSTALLDIR/prefix/drive_c/Program Files/EA SPORTS/NHL 2004/nhl2004.exe" ] ; then
+    exit 1
+fi

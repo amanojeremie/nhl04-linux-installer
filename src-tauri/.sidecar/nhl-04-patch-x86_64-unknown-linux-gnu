@@ -1,0 +1,84 @@
+#!/bin/bash
+
+INSTALLDIR="$1"
+echo "Patching NHL web interface to work in Wine..."
+
+abort () {
+    echo "$1"
+    exit 1
+}
+# Seems winetricks ie6 doesn't support DXImageTransform, so let's comment those out
+find "$INSTALLDIR/interface" -type f -name "*.js" -print0 | xargs -0 sed -i 's/oImage\.filters/\/\/oImage.filters/g' > /dev/null 2>&1
+if [ $? -ne 0 ] ; then
+    abort "Failed to patch interface"
+fi
+echo "Patched DXImageTransform"
+# Project1.exe is just an external stat tracker, but it can't connect to the nhl2004.exe process in Wine, ss we'll comment out the executions
+find "$INSTALLDIR/interface" -type f -name "*.js" -print0 | xargs -0 sed -i 's/\.Run."Project1.exe"/\/\//g'
+if [ $? -ne 0 ] ; then
+    abort "Failed to patch interface"
+fi
+echo "Patched Project1.exe"
+echo "Patching complete."
+
+echo "Applying NHL web interface to installation"
+cp -r "$INSTALLDIR"/interface/* "$INSTALLDIR/prefix/drive_c/Program Files/EA SPORTS/NHL 2004/"
+if [ $? -ne 0 ] ; then
+    abort "Failed to apply NHL web interface"
+fi
+echo "Applying NHL 04 Rebuilt Launcher to installation"
+cp -r "$INSTALLDIR"/launcher/* "$INSTALLDIR/prefix/drive_c/Program Files/EA SPORTS/NHL 2004/"
+if [ $? -ne 0 ] ; then
+    abort "Failed to apply launcher"
+fi
+echo "Applying d8vk"
+cp "$INSTALLDIR/d8vk/x32/d3d8.dll" "$INSTALLDIR/prefix/drive_c/Program Files/EA SPORTS/NHL 2004/"
+if [ $? -ne 0 ] ; then
+    abort "Failed to apply d8vk"
+fi
+
+echo "Applying Xidi"
+cp "$INSTALLDIR/xidi/Xidi-v4.2.0/Win32/dinput.dll" "$INSTALLDIR/prefix/drive_c/Program Files/EA SPORTS/NHL 2004/"
+if [ $? -ne 0 ] ; then
+    abort "Failed to apply Xidi."
+fi
+
+echo "Creating launch script"
+echo "#!/bin/bash
+# Hacky way of fixing issues with SteamOS and its locked down package system :(
+PRETTY_NAME=\$(grep \"PRETTY_NAME\" /etc/os-release | cut -d'=' -f2 | tr -d '\"')
+if [[ \$PRETTY_NAME == *\"SteamOS\" ]]; then
+    echo \"Applying SteamOS library path\"
+    export LD_LIBRARY_PATH=\"\$(\"$HOME/.steam/root/ubuntu12_32/steam-runtime/run.sh\" --print-steam-runtime-library-paths)\"
+fi
+
+DIR=\"\$(dirname \"\$(readlink -f \"\${BASH_SOURCE[0]}\")\")\"
+cd \"\$DIR/prefix/drive_c/Program Files/EA SPORTS/NHL 2004/\"
+WINEPREFIX=\"\$DIR/prefix\" WINEDEBUG=err+all,fixme-all \"\$DIR/lutris-GE-Proton8-20-x86_64/bin/wine\" ./Launcher.exe" >> "$INSTALLDIR/NHL 04 Rebuilt.sh"
+chmod +x "$INSTALLDIR/NHL 04 Rebuilt.sh"
+if [ $? -ne 0 ] ; then
+    abort "Failed to create launch script"
+fi
+
+echo "Creating symlinks to important directories"
+WINE_USER=$(whoami)
+ln -s "./prefix/drive_c/users/$WINE_USER/Documents/NHL 2004" "$INSTALLDIR/NHL 2004 Documents Directory"
+if [ $? -ne 0 ] ; then
+    abort "Failed to create documents symlink"
+fi
+ln -s "./prefix/drive_c/Program Files/EA SPORTS/NHL 2004" "$INSTALLDIR/NHL 2004 Program Directory"
+if [ $? -ne 0 ] ; then
+    abort "Failed to create program symlink"
+fi
+
+rm -rf "$INSTALLDIR/temp"
+rm -rf "$INSTALLDIR/disc1"
+rm -rf "$INSTALLDIR/disc2"
+rm -rf "$INSTALLDIR/d8vk"
+rm -rf "$INSTALLDIR/xidi"
+rm -rf "$INSTALLDIR/xidi.zip"
+rm -rf "$INSTALLDIR/launcher"
+rm -rf "$INSTALLDIR/launcher.zip"
+rm -rf "$INSTALLDIR/interface"
+rm "$INSTALLDIR/prefix/dosdevices/g:"
+rm "$INSTALLDIR/prefix/dosdevices/h:"

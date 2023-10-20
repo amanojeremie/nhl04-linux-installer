@@ -1,0 +1,18 @@
+#!/bin/bash
+
+INSTALLDIR="$1"
+WINE_USER=$(whoami)
+echo "Applying roster"
+cp "$INSTALLDIR/roster/NHL 2004 Exh.exh" "$INSTALLDIR/prefix/drive_c/users/$WINE_USER/Documents/NHL 2004/db/"
+cp "$INSTALLDIR/roster/NHL 2004 Exh.exha.tdb" "$INSTALLDIR/prefix/drive_c/users/$WINE_USER/Documents/NHL 2004/db/"
+cp "$INSTALLDIR/roster/db.viv" "$INSTALLDIR/prefix/drive_c/Program Files/EA SPORTS/NHL 2004/db/"
+cp "$INSTALLDIR/roster/tuning.viv" "$INSTALLDIR/prefix/drive_c/Program Files/EA SPORTS/NHL 2004/db/"
+rm -rf "$INSTALLDIR/roster"
+
+echo "Applying Commentary/Play-by-play"
+cp -r "$INSTALLDIR/pbp"/*/* "$INSTALLDIR/prefix/drive_c/Program Files/EA SPORTS/NHL 2004/"
+rm -rf "$INSTALLDIR/pbp"
+
+echo "Applying Gamedata to gamedata" # Linux file collisions are case sensitive, need to move over to appropriate directory
+cp -r "$INSTALLDIR/gamedata"/*/* "$INSTALLDIR/prefix/drive_c/Program Files/EA SPORTS/NHL 2004/gamedata"
+rm -rf "$INSTALLDIR/gamedata"

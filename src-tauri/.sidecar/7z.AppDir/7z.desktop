@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=7-Zip
+Exec=AppRun %F
+Icon=7z
+Comment=7-Zip is a file archiver with a high compression
+Terminal=true
+Categories=Utility;Compression;

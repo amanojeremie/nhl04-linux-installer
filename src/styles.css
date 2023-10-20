@@ -1,0 +1,106 @@
+:root {
+  font-family: Inter, Avenir, Helvetica, Arial, sans-serif;
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 400;
+
+  color: rgba(255, 255, 255, 0.87);
+  background-color: #242424;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-text-size-adjust: 100%;
+  padding-bottom: 32px;
+}
+
+a:link, a:visited {
+  color: #667DAA;
+}
+
+img {
+  display: block;
+  margin: 40px auto -8px auto;
+  width: 350px;
+}
+
+.latest-console-out {
+  position: fixed;
+  bottom: 0;
+  background-color: #242424;
+  position: fixed;
+  overflow: auto;
+  height: 16px;
+  width: 100%;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 8px;
+  z-index: 1;
+  font-size: 12px;
+}
+
+.console {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 12px;
+  background-color: #242424;
+  position: fixed;
+  overflow: auto;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 8px;
+  z-index: 2;
+}
+
+.show-console-checkbox-container {
+  position: fixed;
+  background-color: #242424;
+  top: 0;
+  right: 8px;
+  z-index: 3;
+}
+
+.ellipsis-loader {
+  display: inline-block;
+  position: relative;
+  width: 32px;
+  height: 16px;
+}
+
+.ellipsis-loader div {
+  position: absolute;
+  bottom: 0;
+  width: 2px;
+  height: 2px;
+  border-radius: 50%;
+  background: #fff;
+  animation: ellipsis-loader 1.2s steps(1, end) infinite both;
+  opacity: 0;
+}
+
+.ellipsis-loader div:nth-child(1) {
+  left: 2px;
+  animation-delay: -0.32s;
+}
+
+.ellipsis-loader div:nth-child(2) {
+  left: 6px;
+  animation-delay: -0.16s;
+}
+
+.ellipsis-loader div:nth-child(3) {
+  left: 10px;
+  animation-delay: 0;
+}
+
+@keyframes ellipsis-loader {
+  0%, 33% {
+      opacity: 1;
+  }
+  34%, 100% {
+      opacity: 0;
+  }
+}

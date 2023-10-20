@@ -1,0 +1,7 @@
+#!/bin/bash
+
+# Get the directory of the current script (AppRun), which should be the root of the AppImage
+APPDIR="$(dirname "$(readlink -f "$0")")"
+
+# Execute the 7z binary inside the AppImage with all passed arguments
+exec "$APPDIR/usr/bin/7z" "$@"

@@ -1,0 +1,9 @@
+#!/bin/bash
+
+unset LD_LIBRARY_PATH # Use system libraries, this was set Tauri's AppImage builder
+PRETTY_NAME=$(grep "PRETTY_NAME" /etc/os-release | cut -d'=' -f2 | tr -d '"')
+if [[ $PRETTY_NAME == *"SteamOS" ]]; then
+    # XDG_DATA_DIRS is affected by Tauri's AppImage, doesn't seem to work on SteamOS without resetting
+    export XDG_DATA_DIRS="$HOME/.local/share/flatpak/exports/share:/var/lib/flatpak/exports/share:/usr/local/share:/usr/share"
+fi
+xdg-open $1

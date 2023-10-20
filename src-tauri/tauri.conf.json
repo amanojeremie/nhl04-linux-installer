@@ -1,0 +1,145 @@
+{
+  "build": {
+    "beforeDevCommand": "npm run dev",
+    "beforeBuildCommand": "npm run build",
+    "devPath": "http://localhost:1420",
+    "distDir": "../dist",
+    "withGlobalTauri": false
+  },
+  "package": {
+    "productName": "nhl04-linux-installer",
+    "version": "0.1.0"
+  },
+  "tauri": {
+    "allowlist": {
+      "all": false,
+      "dialog": {
+        "open": true,
+        "message": true
+      },
+      "fs": {
+        "readDir": true
+      },
+      "shell": {
+        "all": false,
+        "open": true,
+        "execute": true,
+        "sidecar": true,
+        "scope": [
+          {
+            "name": "curl",
+            "sidecar": false,
+            "cmd": "curl",
+            "args": [
+              "-o",
+              {
+                "validator": "\\S+"
+              },
+              "-L",
+              {
+                "validator": "\\S+"
+              }
+            ]
+          },
+          { 
+            "name": ".sidecar/7-Zip.AppImage",
+            "sidecar": true,
+            "args": [
+              "x",
+              {
+                "validator": "\\S+"
+              },
+              {
+                "validator": "\\S+"
+              },
+              "-aoa"
+            ]
+          },
+          { 
+            "name": ".sidecar/nhl-04-xdg-open",
+            "sidecar": true,
+            "args": [
+              {
+                "validator": "\\S+"
+              }
+            ]
+          },
+          { 
+            "name": ".sidecar/nhl-04-install",
+            "sidecar": true,
+            "args": [
+              {
+                "validator": "\\S+"
+              }
+            ]
+          },
+          { 
+            "name": ".sidecar/nhl-04-verify-install",
+            "sidecar": true,
+            "args": [
+              {
+                "validator": "\\S+"
+              }
+            ]
+          },
+          { 
+            "name": ".sidecar/nhl-04-patch",
+            "sidecar": true,
+            "args": [
+              {
+                "validator": "\\S+"
+              }
+            ]
+          },
+          { 
+            "name": ".sidecar/nhl-04-roster-install",
+            "sidecar": true,
+            "args": [
+              {
+                "validator": "\\S+"
+              }
+            ]
+          },
+          { 
+            "name": ".sidecar/winetricks",
+            "sidecar": true,
+            "args": true
+          }
+        ]
+      }
+    },
+    "bundle": {
+      "active": true,
+      "targets": "appimage",
+      "identifier": "com.jeremieamano.nhl04",
+      "icon": [
+        "icons/32x32.png",
+        "icons/128x128.png",
+        "icons/128x128@2x.png",
+        "icons/icon.icns",
+        "icons/icon.ico"
+      ],
+      "externalBin": [
+        ".sidecar/7-Zip.AppImage",
+        ".sidecar/nhl-04-xdg-open",
+        ".sidecar/nhl-04-install",
+        ".sidecar/nhl-04-verify-install",
+        ".sidecar/nhl-04-patch",
+        ".sidecar/nhl-04-roster-install",
+        ".sidecar/winetricks"
+      ]
+    },
+    "security": {
+      "csp": null
+    },
+    "windows": [
+      {
+        "fullscreen": false,
+        "resizable": true,
+        "title": "nhl04-linux-installer",
+        "width": 800,
+        "height": 600
+      }
+    ]
+  }
+}
