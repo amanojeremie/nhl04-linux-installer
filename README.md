@@ -1,6 +1,6 @@
 # NHL 04 on Linux Installer
 
-This installer will guide users through setting up NHL 04 for PC on Linux.
+This installer will guide users through setting up NHL 04 for PC on Linux. Download the AppImage [here](https://github.com/amanojeremie/nhl04-linux-installer/releases/tag/v0.1.0).
 
 ## Purpose
 
