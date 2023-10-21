@@ -17,6 +17,8 @@ Includes a roster installer to streamline installing the latest rosters provided
 - **[Vulkan support and Vulkan drivers](https://github.com/lutris/docs/blob/master/InstallingDrivers.md)**. Note: Steam Deck users will already have these
 
 ## Images
+### Installer
+![Installer during the installation step](./assets/nhl04-installer-screenshot.png)
 ### EndeavourOS
 ![NHL 2004 running in EndeavourOS, NVIDIA RTX 3080](./assets/nhl-endeavouros-screenshot.png)
 
