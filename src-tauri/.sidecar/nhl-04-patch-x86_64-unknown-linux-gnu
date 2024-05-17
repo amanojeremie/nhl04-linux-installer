@@ -54,7 +54,7 @@ fi
 
 DIR=\"\$(dirname \"\$(readlink -f \"\${BASH_SOURCE[0]}\")\")\"
 cd \"\$DIR/prefix/drive_c/Program Files/EA SPORTS/NHL 2004/\"
-WINEPREFIX=\"\$DIR/prefix\" WINEDEBUG=err+all,fixme-all \"\$DIR/lutris-GE-Proton8-20-x86_64/bin/wine\" ./Launcher.exe" >> "$INSTALLDIR/NHL 04 Rebuilt.sh"
+WINEPREFIX=\"\$DIR/prefix\" WINEDEBUG=err+all,fixme-all \"\$DIR/lutris-GE-Proton8-26-x86_64/bin/wine\" ./Launcher.exe" >> "$INSTALLDIR/NHL 04 Rebuilt.sh"
 chmod +x "$INSTALLDIR/NHL 04 Rebuilt.sh"
 if [ $? -ne 0 ] ; then
     abort "Failed to create launch script"
@@ -80,5 +80,5 @@ rm -rf "$INSTALLDIR/xidi.zip"
 rm -rf "$INSTALLDIR/launcher"
 rm -rf "$INSTALLDIR/launcher.zip"
 rm -rf "$INSTALLDIR/interface"
-rm "$INSTALLDIR/prefix/dosdevices/g:"
-rm "$INSTALLDIR/prefix/dosdevices/h:"
+rm "$INSTALLDIR/prefix/dosdevices/u:"
+rm "$INSTALLDIR/prefix/dosdevices/t:"

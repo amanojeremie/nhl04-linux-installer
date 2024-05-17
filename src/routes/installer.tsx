@@ -219,7 +219,7 @@ function Installer() {
       ], {
         env: {
           'INSTALLDIR': installDir,
-          'WINE': `${installDir}/lutris-GE-Proton8-20-x86_64/bin/wine`,
+          'WINE': `${installDir}/lutris-GE-Proton8-26-x86_64/bin/wine`,
           'WINEPREFIX': `${installDir}/prefix`
         }
       });
@@ -310,7 +310,7 @@ function Installer() {
           </p>
           <ul>
             <li><Hyperlink href="https://www.tapatalk.com/groups/nhl04rebuilt/04-launcher-v2-download-t5286.html">NHL04 Rebuilt Launcher v2</Hyperlink></li>
-            <li><Hyperlink href="https://github.com/GloriousEggroll/wine-ge-custom/releases/tag/GE-Proton8-20">Wine-GE-8-20</Hyperlink> to run NHL 2004 on Linux. (wine or wine-staging will not work)</li>
+            <li><Hyperlink href="https://github.com/GloriousEggroll/wine-ge-custom/releases/tag/GE-Proton8-26">Wine-GE-8-26</Hyperlink> to run NHL 2004 on Linux. (wine or wine-staging will not work)</li>
             <li><Hyperlink href="https://github.com/AlpyneDreams/d8vk/releases/tag/d8vk-v1.0">d8vk v1.0</Hyperlink> DirectX 8 to Vulkan translation layer to render NHL 2004 on Linux.</li>
             <li><Hyperlink href="https://github.com/samuelgr/Xidi/releases/tag/v4.2.0">Xidi v4.2.0</Hyperlink> Xinput to DirectInput wrapper for <i>Steam Input</i> gamepad support.</li>
             <li>Internet Explorer 6 installer required by NHL 2004's main menu.</li>

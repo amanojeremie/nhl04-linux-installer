@@ -25,7 +25,7 @@ if ! [ -f "$INSTALLDIR/disc2/SAR.exe" ] ; then
 fi
 
 echo "Downloading Wine-GE"
-curl -o "$INSTALLDIR/temp/winege.tar.xz" -L https://github.com/GloriousEggroll/wine-ge-custom/releases/download/GE-Proton8-20/wine-lutris-GE-Proton8-20-x86_64.tar.xz
+curl -o "$INSTALLDIR/temp/winege.tar.xz" -L https://github.com/GloriousEggroll/wine-ge-custom/releases/download/GE-Proton8-26/wine-lutris-GE-Proton8-26-x86_64.tar.xz
 if [ $? -ne 0 ] ; then
     abort_and_cleanup "Failed to download Wine-GE"
 fi
@@ -41,7 +41,7 @@ mkdir "$INSTALLDIR/d8vk"
 echo "Extracting d8vk"
 tar -xf "$INSTALLDIR/temp/d8vk.tar.gz" -C "$INSTALLDIR/d8vk"
 
-WINEDIR="$INSTALLDIR/lutris-GE-Proton8-20-x86_64/bin"
+WINEDIR="$INSTALLDIR/lutris-GE-Proton8-26-x86_64/bin"
 
 # Add registry entry to treat drives as CD-ROMS(tricks the Installer to think that the CDs are inserted)
 # Also add dll overrides for d8vk and Xidi
@@ -49,8 +49,8 @@ CDROM_REGEDIT="\
 REGEDIT4\n\
 \n\
 [HKEY_LOCAL_MACHINE\\Software\\Wine\\Drives]\n\
-\"g:\"=\"cdrom\"\n\
-\"h:\"=\"cdrom\"\n\
+\"t:\"=\"cdrom\"\n\
+\"u:\"=\"cdrom\"\n\
 \n\
 [HKEY_CURRENT_USER\\Software\\Wine\\DllOverrides]\n\
 \"d3d8\"=\"native,builtin\"\n\
@@ -71,20 +71,34 @@ fi
 WINEPREFIX="$INSTALLDIR/prefix" WINEARCH=win32 "$WINEDIR/wineboot" -i
 echo "Wineboot"
 
-ln -s "$INSTALLDIR/disc1" "$INSTALLDIR/prefix/dosdevices/g:"
-if [ $? -ne 0 ] ; then
-    abort_and_cleanup "Failed to create disc1 symlink"
-fi
-ln -s "$INSTALLDIR/disc2" "$INSTALLDIR/prefix/dosdevices/h:"
-if [ $? -ne 0 ] ; then
-    abort_and_cleanup "Failed to create disc2 symlink."
-fi
-
-WINEPREFIX="$INSTALLDIR/prefix" "$WINEDIR/wine" regedit "$INSTALLDIR/temp/cdrom.reg"
+WINEPREFIX="$INSTALLDIR/prefix" "$WINEDIR/wine" reg add "HKEY_LOCAL_MACHINE\\Software\\Wine\\Drives" /v t: /t REG_SZ /d cdrom
 if [ $? -ne 0 ] ; then
     abort_and_cleanup "Failed to update registry, exiting."
 fi
 
+WINEPREFIX="$INSTALLDIR/prefix" "$WINEDIR/wine" reg add "HKEY_LOCAL_MACHINE\\Software\\Wine\\Drives" /v u: /t REG_SZ /d cdrom
+if [ $? -ne 0 ] ; then
+    abort_and_cleanup "Failed to update registry, exiting."
+fi
+
+WINEPREFIX="$INSTALLDIR/prefix" "$WINEDIR/wine" reg add "HKEY_CURRENT_USER\\Software\\Wine\\DllOverrides" /v d3d8 /t REG_SZ /d native,builtin
+if [ $? -ne 0 ] ; then
+    abort_and_cleanup "Failed to update registry, exiting."
+fi
+
+WINEPREFIX="$INSTALLDIR/prefix" "$WINEDIR/wine" reg add "HKEY_CURRENT_USER\\Software\\Wine\\DllOverrides" /v dinput /t REG_SZ /d native,builtin
+if [ $? -ne 0 ] ; then
+    abort_and_cleanup "Failed to update registry, exiting."
+fi
+
+ln -s "$INSTALLDIR/disc1" "$INSTALLDIR/prefix/dosdevices/t:"
+if [ $? -ne 0 ] ; then
+    abort_and_cleanup "Failed to create disc1 symlink"
+fi
+ln -s "$INSTALLDIR/disc2" "$INSTALLDIR/prefix/dosdevices/u:"
+if [ $? -ne 0 ] ; then
+    abort_and_cleanup "Failed to create disc2 symlink."
+fi
 WINEPREFIX="$INSTALLDIR/prefix" "$WINEDIR/wineserver" -k # Apply the drive changes
 WINEPREFIX="$INSTALLDIR/prefix" "$WINEDIR/wineboot"
 echo "Applied registry"
