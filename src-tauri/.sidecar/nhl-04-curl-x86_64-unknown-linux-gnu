@@ -1,4 +1,4 @@
 #!/bin/bash
 
 unset LD_LIBRARY_PATH # Use system libraries, this was set Tauri's AppImage builder
-curl $1 $2 $3 $4
+curl "$@"
